@@ -1,7 +1,13 @@
+.idea/
 demo/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 */__pycache__/
+data/__pycache__/
+common/__pycache__/
+eval/__pycache__/
+methods/__pycache__/
+utils/__pycache__/
 *.pyc
 *.py[cod]
 *$py.class
