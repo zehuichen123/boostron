@@ -11,6 +11,7 @@ class KFoldEnsemble:
         self.nfold = nfold
         self.seed = seed
         self.logger = LogHelper(nni_log)
+        self.eval_res = None
 
     def fit(self, data):
         X = data.x
@@ -37,6 +38,7 @@ class KFoldEnsemble:
             self.logger.kfold_single(idx, train_loss, vali_loss)
 
         summary_loss = self.evaler.eval(y, train_pred_summary)
+        self.eval_res = summary_loss
         self.logger.kfold_summary(summary_loss)
 
     def predict(self, test_data):

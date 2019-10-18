@@ -15,6 +15,8 @@ from methods.kfold import KFoldEnsemble
 from eval.custom_evaler.auc_evaler import Evaler
 from submit.custom_submitter.credit_submitter import Submitter
 
+from concurrent.futures import ProcessPoolExecutor
+
 config = {
     "print_every": 50,
     "param": {
@@ -31,34 +33,42 @@ config = {
     }
 }
 
-# load data
+def single_run(index):
+    custom_reader = Reader('../demo/credit_data', 'train.pkl', 'train_target.pkl', 'test.pkl')
+    custom_spliter = Spliter()
+    data = DataLoader(custom_reader, custom_spliter)
+    data.load()
+
+    config['param']['gpu_id'] = index
+
+    xgb_custom = XGB(config)
+    base_model = Model(xgb_custom)
+
+    evaler = Evaler()
+
+    print("[KFold Time] Num: %d" % (index+1))
+    kfoldEnsemble = KFoldEnsemble(base_model=base_model, evaler=evaler, nfold=5, seed=index, nni_log=False)
+    kfoldEnsemble.fit(data)
+
+    return kfoldEnsemble
+
+sum_res = 0
+kfold_time = 5
+index_list = [i for i in range(kfold_time)]
+model_list = []
+with ProcessPoolExecutor(max_workers=kfold_time) as executor:
+    for index, kfold_model in enumerate(executor.map(single_run, index_list)):
+        model_list.append(kfold_model)
+        sum_res += kfold_model.eval_res
+# start training
+print("[Overall Summary] Train Loss: %g" % (sum_res/kfold_time))
+
 custom_reader = Reader('../demo/credit_data', 'train.pkl', 'train_target.pkl', 'test.pkl')
 custom_spliter = Spliter()
 data = DataLoader(custom_reader, custom_spliter)
 data.load()
-
-# initialize model
-lgb_custom = XGB(config)
-base_model = Model(lgb_custom)
-
-# initialize metric
-evaler = Evaler()
-
-sum_res = 0
-kfold_time = 5
-kfold_list = []
-# intialize method
-for ii in range(5):
-    print("[KFold Time] Num: %d" % (ii+1))
-    kfoldEnsemble = KFoldEnsemble(base_model=base_model, evaler=evaler, nfold=5, seed=ii, nni_log=False)
-    kfoldEnsemble.fit(data)
-    kfold_list.append(kfoldEnsemble)
-    sum_res += kfoldEnsemble.eval_res
-# start training
-print("[Overall Summary] Train Loss: %g" % (sum_res/kfold_time))
-
 # initialize submitter
 submitter = Submitter(submit_file_path='../demo/credit_data/submit.csv', save_path='../demo', file_name='xgb_base.csv')
 
 # submit your prediction
-submitter.submit(kfoldEnsemble_list, data)
+submitter.submit(model_list, data)
