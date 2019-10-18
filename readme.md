@@ -1,28 +1,28 @@
-## Boostron -- A Simple and Efficient Framework for Classification and Regression
+# Boostron -- A Simple and Efficient Framework for Classification and Regression
 
 > Start your tabular data competition quickly!
 
-### Major Features
+## Major Features
 - XGBoost, LightGBM base models (MLP, DAE, Catboost, FM, FFM to be added)
 - Support Multi processes training
 - Visitor Design Pattern, allows you to customize your whole framework efficiently
 - NNI AutoML for search parameters (to be added)
 - Feature Visualization, powered by Facets (to be added)
 
-### How to start
-#### 1. Customize dataset reader
+## How to start
+### 1. Customize dataset reader
 Create `new_reader.py` at `data/custom_reader` to customize the way to load dataset. Refer: `data/custom_reader/credit_reader.py`. You may peform feature engineering here.
-#### 2. Customize dataset spliter
+### 2. Customize dataset spliter
 Create `new_spliter.py` at `data/custom_spliter` to customize the way to split dataset. Refer: `data/custom_spliter/normal_spliter.py`.
-#### 3. Customize your ML model
+### 3. Customize your ML model
 You may directly use `XGBoost` or `LightGBM` from this library. If you want  to design your own model, please implement `train()` and `predict_prob()`.
-#### 4. Customize your ML training ways
+### 4. Customize your ML training ways
 You may directly use `KFoldEnsembles` from this library. If you want to customize your own way, like undersampling, please implement `fit()` and `predict()` according to `methods/kfold.py`
-#### 5. Customize your eval metrics
+### 5. Customize your eval metrics
 You may directly use `auc_evaler` from this library. If you want to customize your own way, like undersampling, please implement `eval()` and `model_eval()` according to `eval/custom_evaler/auc_evaler.py`
-#### 6. Customize your submit metrics
+### 6. Customize your submit metrics
 Create `new_submitter.py` at `submit/custom_submitter` to customize the way to split dataset. Refer: `submit/custom_submitter/credit_submitter.py`.
-#### 7. Start Training
+### 7. Start Training
 Here is an example code on how to ensembles all these modules together.
 ```python
 # import what you need
