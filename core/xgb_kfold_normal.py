@@ -44,21 +44,13 @@ base_model = Model(lgb_custom)
 # initialize metric
 evaler = Evaler()
 
-sum_res = 0
-kfold_time = 5
-kfold_list = []
 # intialize method
-for ii in range(5):
-    print("[KFold Time] Num: %d" % (ii+1))
-    kfoldEnsemble = KFoldEnsemble(base_model=base_model, evaler=evaler, nfold=5, seed=ii, nni_log=False)
-    kfoldEnsemble.fit(data)
-    kfold_list.append(kfoldEnsemble)
-    sum_res += kfoldEnsemble.eval_res
-# start training
-print("[Overall Summary] Train Loss: %g" % (sum_res/kfold_time))
+
+kfoldEnsemble = KFoldEnsemble(base_model=base_model, evaler=evaler, nfold=5, seed=ii, nni_log=False)
+kfoldEnsemble.fit(data)
 
 # initialize submitter
 submitter = Submitter(submit_file_path='../demo/credit_data/submit.csv', save_path='../demo', file_name='xgb_base.csv')
 
 # submit your prediction
-submitter.submit(kfoldEnsemble_list, data)
+submitter.submit([kfoldEnsemble], data)
